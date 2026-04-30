@@ -3230,7 +3230,7 @@ end
 
 function library:toggle(properties)
 	local cfg = {
-		enabled = properties.enabled or false,
+		enabled = properties.enabled or nil,
 		name = properties.name or "Toggle",
 		flag = properties.flag or tostring(math.random(1, 9999999)),
 		callback = properties.callback or function() end,
@@ -3266,7 +3266,7 @@ function library:toggle(properties)
 		BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 	})
 
-	local list_right = library:create("UIListLayout", {
+	local list = library:create("UIListLayout", {
 		Parent = right_components,
 		Name = "",
 		FillDirection = Enum.FillDirection.Horizontal,
@@ -3278,31 +3278,32 @@ function library:toggle(properties)
 	local icon_inline = library:create("TextButton", {
 		Parent = object,
 		Name = "",
-		Position = UDim2.new(1, -42, 0.5, -8),
+		Position = UDim2.new(0, -15, 0, 1),
 		BorderColor3 = Color3.fromRGB(19, 19, 19),
-		Size = UDim2.new(0, 36, 0, 16),
-		BorderSizePixel = 1,
+		Size = UDim2.new(0, 10, 0, 10),
+		BorderSizePixel = 0,
 		Text = "",
 		AutoButtonColor = false,
 		BackgroundColor3 = Color3.fromRGB(8, 8, 8),
 	})
 
-	local knob = library:create("Frame", {
+	local icon = library:create("Frame", {
 		Parent = icon_inline,
-		Name = "Knob",
-		Size = UDim2.new(0, 14, 0, 14),
-		Position = UDim2.new(0, 1, 0.5, -7),
-		BackgroundColor3 = Color3.fromRGB(38, 38, 38),
-		BorderSizePixel = 0,
+		Name = "",
+		Position = UDim2.new(0, 2, 0, 2),
+		BorderColor3 = Color3.fromRGB(56, 56, 56),
+		Size = UDim2.new(1, -4, 1, -4),
+		BackgroundColor3 = Color3.fromRGB(22, 22, 22),
 	})
 
-	local accent_knob = library:create("Frame", {
-		Parent = knob,
+	local icon_2 = library:create("Frame", {
+		Parent = icon,
+		Name = "",
+		BorderColor3 = Color3.fromRGB(56, 56, 56),
 		Size = UDim2.new(1, 0, 1, 0),
 		BackgroundColor3 = themes.preset.accent,
-		BorderSizePixel = 0,
 	})
-	library:apply_theme(accent_knob, "accent", "BackgroundColor3")
+	library:apply_theme(icon_2, "accent", "BackgroundColor3")
 
 	local glow = library:create("ImageLabel", {
 		Parent = icon_inline,
@@ -3321,6 +3322,7 @@ function library:toggle(properties)
 		BorderSizePixel = 0,
 		SliceCenter = Rect.new(Vector2.new(21, 21), Vector2.new(79, 79)),
 	})
+
 	library:apply_theme(glow, "accent", "ImageColor3")
 
 	local bottom_components = library:create("Frame", {
@@ -3335,44 +3337,32 @@ function library:toggle(properties)
 		BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 	})
 
-	local list_bottom = library:create("UIListLayout", {
+	local list = library:create("UIListLayout", {
 		Parent = bottom_components,
 		Name = "",
 		Padding = UDim.new(0, 4),
 		SortOrder = Enum.SortOrder.LayoutOrder,
 	})
-
-	-- Corner radius
-	local uicorner_inline = library:create("UICorner", {Parent = icon_inline, CornerRadius = UDim.new(0, 8)})
-	local uicorner_knob = library:create("UICorner", {Parent = knob, CornerRadius = UDim.new(0, 7)})
+	--
 
 	function cfg.set(bool)
-		flags[cfg.flag] = bool
-		accent_knob.Visible = bool
+		icon_2.Visible = bool
 		glow.Visible = bool
 
-		local targetPos = bool and UDim2.new(1, -15, 0.5, -7) or UDim2.new(0, 1, 0.5, -7)
-		local targetColor = bool and themes.preset.accent or Color3.fromRGB(38, 38, 38)
-
-		tween_service:Create(knob, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-			Position = targetPos
-		}):Play()
-
-		tween_service:Create(accent_knob, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {
-			BackgroundColor3 = targetColor
-		}):Play()
+		flags[cfg.flag] = bool
 
 		cfg.callback(bool)
 	end
 
-	-- Клик по всему элементу
-	object.MouseButton1Click:Connect(function()
+	library:connection(object.MouseButton1Click, function()
 		cfg.enabled = not cfg.enabled
+
 		cfg.set(cfg.enabled)
 	end)
 
-	icon_inline.MouseButton1Click:Connect(function()
+	library:connection(icon_inline.MouseButton1Click, function()
 		cfg.enabled = not cfg.enabled
+
 		cfg.set(cfg.enabled)
 	end)
 
